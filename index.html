@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GK Gym Payment System</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="loginScreen" class="login-screen">
+  <div class="login-orb orb-1"></div><div class="login-orb orb-2"></div>
+  <form id="loginForm" class="login-card glass-3d">
+    <div class="brand-mark">GK</div>
+    <div class="eyebrow">GYM MANAGEMENT</div>
+    <h1>GK Gym Payment System</h1>
+    <p class="login-subtitle">Secure local dashboard for members, payments and reports.</p>
+    <label>Username<input id="loginUsername" autocomplete="username" required></label>
+    <label>Password<div class="password-wrap"><input id="loginPassword" type="password" autocomplete="current-password" required><button type="button" id="toggleLoginPassword">Show</button></div></label>
+    <button class="btn primary login-btn" type="submit">Sign in <span>→</span></button>
+    <div class="login-hint">Default Admin: <b>admin</b> / <b>admin123</b></div>
+    <div id="loginError" class="error-text"></div>
+  </form>
+</div>
+
+<div id="app" class="app hidden">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand"><div class="brand-mark small">GK</div><div><b>GK Gym</b><small>Payment System</small></div></div>
+    <nav>
+      <button class="nav-item active" data-page="dashboard"><span>▦</span> Dashboard</button>
+      <button class="nav-item" data-page="members"><span>♙</span> Members</button>
+      <button class="nav-item" data-page="payments"><span>₹</span> Payments</button>
+      <button class="nav-item" data-page="reports"><span>▤</span> Reports</button>
+      <button class="nav-item admin-only" data-page="users"><span>♟</span> User Management</button>
+      <button class="nav-item admin-only" data-page="backup"><span>◫</span> Backup & Restore</button>
+      <button class="nav-item admin-only" data-page="settings"><span>⚙</span> Settings</button>
+    </nav>
+    <div class="sidebar-bottom">
+      <div id="loggedUserBox" class="logged-user"></div>
+      <button id="logoutBtn" class="logout-btn">↪ Logout</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <button id="menuBtn" class="icon-btn">☰</button>
+      <div><div class="top-title" id="pageTitle">Dashboard</div><div class="top-date" id="topDate"></div></div>
+      <button id="quickPayment" class="btn primary">+ Payment</button>
+    </header>
+
+    <section id="dashboardPage" class="page active">
+      <div class="hero glass-3d">
+        <div><span class="eyebrow">OVERVIEW</span><h2 id="welcomeTitle">Welcome back 👋</h2><p>Track your gym operations, collections and member activity from one place.</p></div>
+        <div class="hero-cube"><div class="cube-face front">GK</div><div class="cube-face back">GYM</div><div class="cube-face right">₹</div><div class="cube-face left">FIT</div></div>
+      </div>
+      <div class="cards stats-grid">
+        <div class="stat-card"><span>Total Members</span><strong id="totalMembers">0</strong><small>All registered members</small></div>
+        <div class="stat-card"><span>Active Members</span><strong id="activeMembers">0</strong><small>Currently active</small></div>
+        <div class="stat-card"><span>Expired</span><strong id="expiredMembers">0</strong><small>Need renewal</small></div>
+        <div class="stat-card"><span>Today Collection</span><strong id="todayCollection">₹0.00</strong><small>Today's payments</small></div>
+        <div class="stat-card"><span>Month Collection</span><strong id="monthCollection">₹0.00</strong><small>This month</small></div>
+        <div class="stat-card"><span>Total Collection</span><strong id="totalCollection">₹0.00</strong><small>All payments</small></div>
+        <div class="stat-card"><span>Pending Payments</span><strong id="pendingPayments">0</strong><small>Pending records</small></div>
+      </div>
+      <div class="grid-2">
+        <div class="panel glass-3d"><div class="panel-head"><div><h3>Collection Overview</h3><p>Last 7 days</p></div></div><canvas id="revenueChart"></canvas></div>
+        <div class="panel glass-3d"><div class="panel-head"><div><h3>Expiry Alerts</h3><p>Members needing attention</p></div></div><div id="expiryAlerts"></div></div>
+      </div>
+      <div class="panel glass-3d"><div class="panel-head"><div><h3>Recent Payments</h3><p>Latest transactions</p></div></div><div class="table-wrap"><table><thead><tr><th>Date</th><th>Member</th><th>Amount</th><th>Method</th><th>Status</th></tr></thead><tbody id="recentPayments"></tbody></table></div></div>
+    </section>
+
+    <section id="membersPage" class="page">
+      <div class="page-head"><div><span class="eyebrow">MEMBERS</span><h2>Member Management</h2></div><button id="addMemberBtn" class="btn primary">+ Add Member</button></div>
+      <div class="toolbar"><input id="memberSearch" placeholder="Search name, mobile or member ID..."></div>
+      <div class="panel glass-3d table-wrap"><table><thead><tr><th>ID</th><th>Name</th><th>Mobile</th><th>Plan</th><th>Join Date</th><th>Expiry</th><th>Status</th><th>Actions</th></tr></thead><tbody id="membersTable"></tbody></table></div>
+    </section>
+
+    <section id="paymentsPage" class="page">
+      <div class="page-head"><div><span class="eyebrow">PAYMENTS</span><h2>Payment Management</h2></div><button id="addPaymentBtn" class="btn primary">+ Add Payment</button></div>
+      <div class="filters"><input id="paymentSearch" placeholder="Search member..."><input id="paymentFrom" type="date"><input id="paymentTo" type="date"><select id="paymentMember"><option value="">All members</option></select><select id="paymentMethod"><option value="">All methods</option><option>Cash</option><option>UPI</option><option>Card</option><option>Bank Transfer</option></select><select id="paymentStatus"><option value="">All status</option><option>Paid</option><option>Pending</option><option>Refunded</option></select><button id="exportPaymentsCsv" class="btn secondary">Export CSV</button></div>
+      <div class="panel glass-3d table-wrap"><table><thead><tr><th>Date</th><th>Receipt</th><th>Member</th><th>Plan</th><th>Amount</th><th>Method</th><th>Status</th><th>Actions</th></tr></thead><tbody id="paymentsTable"></tbody></table></div>
+    </section>
+
+    <section id="reportsPage" class="page">
+      <div class="page-head"><div><span class="eyebrow">REPORTS</span><h2>Reports & Analytics</h2></div></div>
+      <div class="filters"><select id="reportType"><option value="collection">Collection Report</option><option value="member">Member-wise Report</option><option value="method">Payment Method Report</option></select><input id="reportFrom" type="date"><input id="reportTo" type="date"><button id="runReport" class="btn primary">Run Report</button><button id="exportReportCsv" class="btn secondary">Export CSV</button></div>
+      <div id="reportSummary" class="cards mini-stats"></div>
+      <div class="panel glass-3d table-wrap"><table><thead id="reportHead"></thead><tbody id="reportBody"></tbody></table></div>
+    </section>
+
+    <section id="usersPage" class="page admin-only">
+      <div class="page-head"><div><span class="eyebrow">ADMIN ONLY</span><h2>User Management</h2></div><button id="addUserBtn" class="btn primary">+ Add User</button></div>
+      <div class="cards mini-stats"><div class="stat-card"><span>Total Users</span><strong id="userCount">0</strong></div><div class="stat-card"><span>Active Users</span><strong id="activeUserCount">0</strong></div></div>
+      <div class="panel glass-3d table-wrap"><table><thead><tr><th>Name</th><th>Username</th><th>Role</th><th>Status</th><th>Created</th><th>Actions</th></tr></thead><tbody id="usersTable"></tbody></table></div>
+    </section>
+
+    <section id="backupPage" class="page admin-only">
+      <div class="page-head"><div><span class="eyebrow">ADMIN ONLY</span><h2>Backup & Restore</h2><p>Keep a local copy of all gym data.</p></div></div>
+      <div class="panel glass-3d backup-box"><h3>Export Backup</h3><p>Downloads members, payments, plans, settings, users and audit records as JSON.</p><button id="downloadBackup" class="btn primary">Download Backup JSON</button><button id="exportDbBackup" class="btn secondary">Export Database</button><hr><h3>Restore Backup</h3><p>Choose a JSON backup created by this system.</p><input id="restoreFile" type="file" accept=".json"><button id="restoreBackup" class="btn danger">Restore Data</button></div>
+    </section>
+
+    <section id="settingsPage" class="page admin-only">
+      <div class="page-head"><div><span class="eyebrow">ADMIN ONLY</span><h2>System Settings</h2></div></div>
+      <div class="grid-2">
+        <form id="settingsForm" class="panel glass-3d form-card"><h3>Gym Settings</h3><label>Gym Name<input id="gymName" required></label><label>Phone<input id="gymPhone"></label><label>Address<textarea id="gymAddress"></textarea></label><label>Currency<input id="currency" value="₹"></label><button class="btn primary">Save Settings</button></form>
+        <form id="adminForm" class="panel glass-3d form-card"><h3>Admin Credentials</h3><p class="muted">Exactly one administrator is supported.</p><label>Admin Username<input id="adminUsername" required></label><label>Admin Password<input id="adminPassword" type="password" placeholder="Leave blank to keep current"></label><button class="btn primary">Update Admin</button></form>
+      </div>
+      <div class="panel glass-3d"><div class="panel-head"><h3>Membership Plans</h3></div><form id="planForm" class="inline-form"><input id="planName" placeholder="Plan name" required><input id="planDuration" type="number" placeholder="Days" required><input id="planAmount" type="number" step="0.01" placeholder="Amount" required><button class="btn primary">Add Plan</button></form><div class="table-wrap"><table><thead><tr><th>Plan</th><th>Duration</th><th>Amount</th><th>Action</th></tr></thead><tbody id="plansTable"></tbody></table></div></div>
+    </section>
+  </main>
+</div>
+
+<div id="memberModal" class="modal"><div class="modal-card glass-3d"><button class="modal-close" onclick="closeModal('memberModal')">×</button><h3 id="memberModalTitle">Add Member</h3><form id="memberForm" class="form-grid"><input type="hidden" id="memberKey"><label>Member ID<input id="memberId" required></label><label>Full Name<input id="memberName" required></label><label>Mobile<input id="memberMobile"></label><label>Email<input id="memberEmail" type="email"></label><label>Join Date<input id="memberJoinDate" type="date" required></label><label>Expiry Date<input id="memberExpiryDate" type="date" required></label><label>Plan<select id="memberPlan"></select></label><label>Gender<select id="memberGender"><option>Male</option><option>Female</option><option>Other</option></select></label><label class="full">Address<textarea id="memberAddress"></textarea></label><div class="full modal-actions"><button type="button" class="btn secondary" onclick="closeModal('memberModal')">Cancel</button><button class="btn primary">Save Member</button></div></form></div></div>
+
+<div id="paymentModal" class="modal"><div class="modal-card glass-3d"><button class="modal-close" onclick="closeModal('paymentModal')">×</button><h3 id="paymentModalTitle">Add Payment</h3><form id="paymentForm" class="form-grid"><input type="hidden" id="paymentKey"><label>Member<select id="payMember" required></select></label><label>Plan<select id="payPlan"></select></label><label>Payment Date<input id="payDate" type="date" required></label><label>Amount<input id="payAmount" type="number" step="0.01" required></label><label>Method<select id="payMethod"><option>Cash</option><option>UPI</option><option>Card</option><option>Bank Transfer</option></select></label><label>Status<select id="payStatus"><option>Paid</option><option>Pending</option><option>Refunded</option></select></label><label class="full">Note<textarea id="payNote"></textarea></label><div class="full modal-actions"><button type="button" class="btn secondary" onclick="closeModal('paymentModal')">Cancel</button><button class="btn primary">Save Payment</button></div></form></div></div>
+
+<div id="upiQrModal" class="modal"><div class="modal-card glass-3d upi-card"><button class="modal-close" onclick="cancelUpiPayment()">×</button><h3>Scan &amp; Pay via UPI</h3><p class="muted">Payment will be saved only after you confirm the scan below.</p><div id="upiQrBox"></div><div class="modal-actions"><button type="button" class="btn secondary" onclick="cancelUpiPayment()">✖ Cancel Payment</button><button type="button" class="btn primary" onclick="confirmUpiPayment()">✅ Payment Scanned &amp; Done</button></div></div></div>
+
+<div id="userModal" class="modal"><div class="modal-card glass-3d"><button class="modal-close" onclick="closeModal('userModal')">×</button><h3 id="userModalTitle">Add User</h3><form id="userForm" class="form-grid"><input type="hidden" id="userKey"><label>Full Name<input id="userName" required></label><label>Username<input id="userUsername" required></label><label>Role<select id="userRole" disabled><option value="user">User</option></select></label><label>Status<select id="userStatus"><option value="active">Active</option><option value="inactive">Inactive</option></select></label><label class="full">Password<input id="userPassword" type="password" required></label><div class="full modal-actions"><button type="button" class="btn secondary" onclick="closeModal('userModal')">Cancel</button><button class="btn primary">Save User</button></div></form></div></div>
+
+<div id="receiptModal" class="modal"><div class="modal-card receipt-card"><button class="modal-close" onclick="closeModal('receiptModal')">×</button><div id="receiptContent"></div><div class="modal-actions no-print"><button class="btn secondary" onclick="closeModal('receiptModal')">Close</button><button id="printReceipt" class="btn primary">Print Receipt</button></div></div></div>
+<div id="toast" class="toast"></div>
+<script src="db.js"></script><script src="script.js"></script>
+</body>
+</html>
